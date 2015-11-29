@@ -1,0 +1,295 @@
+from graphics import *
+import datetime, time
+
+                    #Function that returns the current time on PC
+# +--------------------------------------------------------------------------+ #
+def getTime():
+    time = str(datetime.datetime.now().time())
+
+    hands = []
+    current = ''
+    for i in time:
+        if i == '.':
+            hands.append(current)
+            break
+        elif i != ':':
+            current += i
+        else:
+            hands.append(current)
+            current = ''
+
+    if int(hands[0]) >= 12:
+        hands[0] = str(int(hands[0]) -12)
+
+    for i in range(3):
+        hands[i] = int(hands[i])
+
+    return hands
+
+                                #CREATES CLOCK
+# +--------------------------------------------------------------------------+ #
+win = GraphWin('Clock', 400, 400)       #creates graphics window
+win.setCoords(0, 0, 400, 400)           #resets coords
+win.setBackground('white')              #background to white
+Circle(Point(200, 200), 150).draw(win)  #draws circle
+
+x = [200, 280, 335, 360, 335, 275, 200, 125, 65, 40, 65, 125] #x of numbers
+y = [360, 335, 285, 200, 115, 60, 40, 60, 115, 200, 285, 340] #y of numbers
+numbers = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]             #numbers
+for i in range(12):                         #Draws the numbers on the clock
+    point = Point(x[i], y[i])
+    text = Text(point, numbers[i])
+    text.setSize(15)
+    text.draw(win)
+
+                                #VARIABLES
+# +--------------------------------------------------------------------------+ #
+minx = 200   #x of minute
+miny = 330   #y of minute
+mint = 0     #time of minute
+minys = 1.9  #shift of minute y
+minxs = 15.5 #shift of minute x
+
+secys = 1.9  #shift of second x
+secxs = 15.5 #shift of second y
+secx = 200   #x of second
+secy = 330   #y of second
+sect = 0     #time of second
+first = True #if its the first second
+
+hourt = 0    #time of hour
+
+x = [200, 255, 280, 300, 280, 250, 200, 150, 120, 110, 120, 155]
+y = [300, 280, 250, 200, 150, 115, 110, 115, 150, 200, 245, 280]
+
+#x/y of where the numbers are on the clock. (not outside)
+
+                 #TAKES IN TIME FROM PC AND CHANGES X/Y OF HANDS
+# +--------------------------------------------------------------------------+ #
+pcTime = getTime()                                          #Get times from pc
+
+                                #HOURS
+# +--------------------------------------------------------------------------+ #
+h = Line(Point(200, 200), Point(x[pcTime[0]], y[pcTime[0]]))
+h.setFill('red')            #Creates the hour hand, colors it, and draws it
+h.draw(win)
+hourt = pcTime[0]
+
+                                #MINUTES
+# +--------------------------------------------------------------------------+ #
+if pcTime[1] != 0:
+    mint = 1
+    for i in range(pcTime[1]):
+        if mint > 45:
+            minx += minxs
+            miny += minys
+            minys -= 1
+            minxs += 1
+
+        elif mint == 45:
+            minx = 73.5
+            miny = 200
+
+        elif mint > 30:
+            minx -= minxs
+            miny += minys
+            minys += 1
+            minxs -= 1
+
+        elif mint == 30:
+            minx = 200
+            miny = 73.5
+
+        elif mint > 15:
+            minx -= minxs
+            miny -= minys
+            minys -= 1
+            minxs += 1
+
+        elif mint == 15:
+            minx = 326.5
+            miny = 200
+
+        else:
+            minx += minxs
+            miny -= minys
+            minys += 1
+            minxs -= 1
+
+        mint += 1
+
+
+m = Line(Point(200, 200), Point(minx, miny))
+m.setFill('blue')       #Creates the minute hand, colors it, and draws it
+m.draw(win)
+
+                                    #SECONDS
+# +--------------------------------------------------------------------------+ #
+for i in range(pcTime[2]):
+    if sect > 45:
+        secx += secxs
+        secy += secys
+        secys -= 1
+        secxs += 1
+
+    elif sect == 45:
+        secx = 73.5
+        secy = 200
+
+    elif sect > 30:
+        secx -= secxs
+        secy += secys
+        secys += 1
+        secxs -= 1
+
+    elif sect == 30:
+        secx = 200
+        secy = 73.5
+
+    elif sect > 15:
+        secx -= secxs
+        secy -= secys
+        secys -= 1
+        secxs += 1
+
+    elif sect == 15:
+        secx = 326.5
+        secy = 200
+
+    elif sect > 0:
+        secx += secxs
+        secy -= secys
+        secys += 1
+        secxs -= 1
+        
+    else:
+        secx = 200
+        secy = 326.5
+
+    sect += 1
+
+line = Line(Point(200, 200), Point(secx, secy))
+line.draw(win)          #Creates the second hand, and draws it
+    
+                               #TIME LOOP
+# +--------------------------------------------------------------------------+ #
+while True:
+    t1 = time.time()        #Start time. Used to calculate diff
+    line.undraw()           #Undraws the previous second line
+
+    if sect == 60:          #If its been one minute       
+        sect = 0            #Reset seconds
+        m.undraw()          #Undraw minute hand
+        mint += 1           #Increment minute hand
+
+        if mint == 60:      #If its been one hour
+            mint = 0        #Reset minutes
+            h.undraw()      #Undraw hour hand
+            hourt += 1      #Increment hour hand
+
+            if hourt == 12: #Changes 12 to 0, since its using a list to find
+                hourt = 0   #positions of the time
+
+            h = Line(Point(200, 200), Point(x[hourt], y[hourt])) 
+            h.setFill('red')  #Creates, colors, and draws the new hour hand
+            h.draw(win)
+
+                            #MOVES X/Y OF MINUTE HAND
+# +--------------------------------------------------------------------------+ #
+        if mint > 45:
+            minx += minxs
+            miny += minys
+            minys -= 1
+            minxs += 1
+
+        elif mint == 45:
+            minx = 73.5
+            miny = 200
+
+        elif mint > 30:
+            minx -= minxs
+            miny += minys
+            minys += 1
+            minxs -= 1
+
+        elif mint == 30:
+            minx = 200
+            miny = 73.5
+
+        elif mint > 15:
+            minx -= minxs
+            miny -= minys
+            minys -= 1
+            minxs += 1
+
+        elif mint == 15:
+            minx = 326.5
+            miny = 200
+
+        elif mint > 0:
+            minx += minxs
+            miny -= minys
+            minys += 1
+            minxs -= 1
+            
+        else:
+            minx = 200
+            miny = 326.5
+        
+
+        m = Line(Point(200, 200), Point(minx, miny))
+        m.setFill('blue')   #Creates, colors, and draws the new minute hand
+        m.draw(win)
+
+                            #MOVES X/Y OF SECOND HAND
+# +--------------------------------------------------------------------------+ #
+    if sect > 45:
+        secx += secxs
+        secy += secys
+        secys -= 1
+        secxs += 1
+
+    elif sect == 45:
+        secx = 73.5
+        secy = 200
+
+    elif sect > 30:
+        secx -= secxs
+        secy += secys
+        secys += 1
+        secxs -= 1
+
+    elif sect == 30:
+        secx = 200
+        secy = 73.5
+
+    elif sect > 15:
+        secx -= secxs
+        secy -= secys
+        secys -= 1
+        secxs += 1
+
+    elif sect == 15:
+        secx = 326.5
+        secy = 200
+
+    elif sect > 0:
+        secx += secxs
+        secy -= secys
+        secys += 1
+        secxs -= 1
+        
+    else:
+        secx = 200
+        secy = 326.5
+
+    sect += 1 #Increments second hand
+    line = Line(Point(200, 200), Point(secx, secy))
+    line.draw(win)      #Creates, and draws the new second hand
+
+    t2 = time.time()    #End time. Used to calculate diff.
+    diff = t2 - t1      #Calculates diff. This is used to simualate a 1 second
+                        #interval, even if one time its slower/longer than the
+                        #previous/next second.
+
+    time.sleep(1 - diff) #Sleeps for 1 second.
